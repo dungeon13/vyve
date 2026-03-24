@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-vyve-indigo: #1e1b4b;
+  --color-vyve-indigo-light: #312e81;
+  --color-vyve-amber: #f59e0b;
+  --color-vyve-amber-light: #fbbf24;
+  --color-vyve-emerald: #10b981;
+  --color-vyve-rose: #f43f5e;
+  --color-vyve-slate: #f8fafc;
+  --color-vyve-muted: #94a3b8;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 antialiased;
+  }
+}
