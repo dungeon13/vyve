@@ -11,6 +11,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Next standalone expects ./public to exist; COPY fails if the directory is missing from the build context
+RUN mkdir -p public
+
 # Railway passes env vars as build args — declare them so next build can inline NEXT_PUBLIC_* values
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
