@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { GoogleGenAI } from "@google/genai";
 
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+function getGenAI() {
+  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,6 +13,8 @@ export async function POST(request: NextRequest) {
     if (!user_id) {
       return NextResponse.json({ error: "Missing user_id" }, { status: 400 });
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     const { data: scores } = await supabaseAdmin
       .from("vyve_scores")
@@ -38,6 +42,7 @@ export async function POST(request: NextRequest) {
 
     const prompt = buildBriefPrompt(latest, scoreChange, actions || []);
 
+    const genai = getGenAI();
     const response = await genai.models.generateContent({
       model: "gemini-2.0-flash",
       contents: prompt,

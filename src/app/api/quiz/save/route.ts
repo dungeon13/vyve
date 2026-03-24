@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +8,8 @@ export async function POST(request: NextRequest) {
     if (!answers || !result || !session_id) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     const { data: quizData, error: quizError } = await supabaseAdmin
       .from("vyve_quiz_responses")
@@ -43,7 +45,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to save score" }, { status: 500 });
     }
 
-    // Track engagement event
     await supabaseAdmin.from("vyve_engagement_events").insert({
       session_id,
       event_type: "quiz_completed",

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +9,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
     }
 
-    const { error } = await supabaseAdmin.auth.signInWithOtp({
+    const supabase = getSupabaseAdmin();
+
+    const { error } = await supabase.auth.signInWithOtp({
       phone,
     });
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +8,8 @@ export async function POST(request: NextRequest) {
     if (!session_id || !event_type) {
       return NextResponse.json({ error: "Missing session_id or event_type" }, { status: 400 });
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     await supabaseAdmin.from("vyve_engagement_events").insert({
       session_id,
@@ -30,6 +32,8 @@ export async function GET(request: NextRequest) {
   if (!metric) {
     return NextResponse.json({ error: "Specify a metric" }, { status: 400 });
   }
+
+  const supabaseAdmin = getSupabaseAdmin();
 
   try {
     switch (metric) {
