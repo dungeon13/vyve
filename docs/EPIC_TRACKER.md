@@ -79,8 +79,8 @@
 - [x] Each card: risk flag (red), win (green), specific action (amber)
 - [x] Action library: 22 curated actions with conditional logic
 - [x] Phone capture UI (after value delivered)
-- [x] OTP send via Supabase Auth (`/api/auth/otp`)
-- [x] OTP verify + user creation (`/api/auth/verify`)
+- [x] OTP send via WhatsApp (Meta Cloud API) + hashed codes in `vyve_otp_codes` (`/api/auth/otp`)
+- [x] OTP verify + `vyve_users` upsert by phone (`/api/auth/verify`)
 - [x] User profile persistence (vyve_users table)
 - [x] "Skip for now" option
 - [x] PostHog: `action_plan_viewed`, `action_clicked`, `phone_capture_shown`, `phone_submitted`, `auth_completed`, `auth_skipped` events
