@@ -1,26 +1,33 @@
 /**
- * Meta WhatsApp Cloud API — outbound text + webhook payload parsing.
+ * Meta WhatsApp Cloud API — matches EchoMind pattern (graph v21, same payload shape).
+ * @see echomind/whatsapp_utils.py, echomind/basic.py /webhook
  */
 
 export function digitsOnlyE164(phone: string): string {
   return phone.replace(/\D/g, "");
 }
 
-export async function sendWhatsAppText(toDigits: string, body: string): Promise<void> {
+function messagesEndpointUrl(): string {
   const phoneNumberId = process.env.WA_PHONE_NUMBER_ID;
+  if (!phoneNumberId) throw new Error("WA_PHONE_NUMBER_ID is not set");
+  return `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`;
+}
+
+function authHeaders(): HeadersInit {
   const token = process.env.WA_ACCESS_TOKEN;
+  if (!token) throw new Error("WA_ACCESS_TOKEN is not set");
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+}
 
-  if (!phoneNumberId || !token) {
-    throw new Error("WA_PHONE_NUMBER_ID or WA_ACCESS_TOKEN is not set");
-  }
-
-  const url = `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`;
+/** Same payload as echomind send_whatsapp_message */
+export async function sendWhatsAppText(toDigits: string, body: string): Promise<void> {
+  const url = messagesEndpointUrl();
   const res = await fetch(url, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
+    headers: authHeaders(),
     body: JSON.stringify({
       messaging_product: "whatsapp",
       to: digitsOnlyE164(toDigits),
@@ -35,21 +42,58 @@ export async function sendWhatsAppText(toDigits: string, body: string): Promise<
   }
 }
 
-/** Meta inbound webhook: first text message sender id (digits only, e.g. 9198…). */
-export function parseInboundMessageFrom(body: unknown): string | null {
+/** EchoMind mark_as_read — blue ticks */
+export async function markWhatsAppMessageRead(messageId: string): Promise<void> {
+  try {
+    const url = messagesEndpointUrl();
+    await fetch(url, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        status: "read",
+        message_id: messageId,
+      }),
+    });
+  } catch {
+    /* non-fatal */
+  }
+}
+
+/**
+ * EchoMind-style parse: entry[0].changes[0].value, then "messages" in value.
+ * Returns null if not a user message payload (statuses, empty, etc.).
+ */
+export function parseInboundWebhookMessage(body: unknown): {
+  fromDigits: string;
+  messageId: string | null;
+  messageType: string;
+} | null {
   try {
     const o = body as {
       entry?: Array<{
-        changes?: Array<{
-          value?: { messages?: Array<{ from?: string }> };
-        }>;
+        changes?: Array<{ value?: Record<string, unknown> }>;
       }>;
     };
-    const from = o?.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.from;
-    if (typeof from === "string" && from.length > 0) {
-      return digitsOnlyE164(from);
-    }
-    return null;
+    const value = o?.entry?.[0]?.changes?.[0]?.value;
+    if (!value || typeof value !== "object") return null;
+    if (!("messages" in value)) return null;
+    const messages = value.messages;
+    if (!Array.isArray(messages) || messages.length === 0) return null;
+
+    const message = messages[0] as {
+      from?: string;
+      id?: string;
+      type?: string;
+    };
+    const from = message?.from;
+    if (typeof from !== "string" || !from) return null;
+
+    return {
+      fromDigits: digitsOnlyE164(from),
+      messageId: typeof message.id === "string" ? message.id : null,
+      messageType: typeof message.type === "string" ? message.type : "unknown",
+    };
   } catch {
     return null;
   }

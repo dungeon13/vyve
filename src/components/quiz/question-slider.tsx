@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { QuizQuestion } from "@/types/quiz";
 
 interface Props {
@@ -12,6 +12,10 @@ interface Props {
 export function QuestionSlider({ question, value, onSelect }: Props) {
   const slider = question.slider!;
   const [localValue, setLocalValue] = useState(value ?? slider.default);
+
+  useEffect(() => {
+    setLocalValue(value ?? slider.default);
+  }, [question.id, value, slider.default, slider.min, slider.max]);
 
   const percentage =
     ((localValue - slider.min) / (slider.max - slider.min)) * 100;
@@ -35,7 +39,6 @@ export function QuestionSlider({ question, value, onSelect }: Props) {
           step={slider.step}
           value={localValue}
           onChange={(e) => setLocalValue(Number(e.target.value))}
-          onPointerUp={() => onSelect(localValue)}
           className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer
             [&::-webkit-slider-thumb]:appearance-none
             [&::-webkit-slider-thumb]:w-7
@@ -52,12 +55,19 @@ export function QuestionSlider({ question, value, onSelect }: Props) {
           }}
         />
         <div className="flex justify-between mt-2 text-sm text-gray-400">
-          <span>{slider.min}{slider.unit ? ` ${slider.unit}` : ""}</span>
-          <span>{slider.max}{slider.unit ? ` ${slider.unit}` : ""}</span>
+          <span>
+            {slider.min}
+            {slider.unit ? ` ${slider.unit}` : ""}
+          </span>
+          <span>
+            {slider.max}
+            {slider.unit ? ` ${slider.unit}` : ""}
+          </span>
         </div>
       </div>
 
       <button
+        type="button"
         onClick={() => onSelect(localValue)}
         className="w-full py-3 bg-vyve-indigo text-white rounded-xl font-semibold
           hover:bg-vyve-indigo-light transition-colors cursor-pointer"
