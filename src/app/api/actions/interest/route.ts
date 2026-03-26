@@ -25,6 +25,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const cleanName = name?.trim() ?? "";
+    const cleanEmail = email?.trim() ?? "";
+    const cleanPhone = phone?.trim() ?? "";
+
+    if (cleanName.length < 2) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    }
+
+    const phoneDigits = cleanPhone.replace(/\D/g, "");
+    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+      return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
+    }
+
     const supabase = getSupabaseAdmin();
 
     const { error: interestError } = await supabase.from("vyve_action_interest").insert({
@@ -32,9 +50,9 @@ export async function POST(request: NextRequest) {
       action_key,
       action_title,
       pillar,
-      name: name?.trim() || null,
-      email: email?.trim() || null,
-      phone: phone?.trim() || null,
+      name: cleanName,
+      email: cleanEmail,
+      phone: cleanPhone,
     });
 
     if (interestError) {
