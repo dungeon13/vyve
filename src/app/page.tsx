@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Hero } from "@/components/landing/hero";
 import { QuizProvider, useQuiz } from "@/components/quiz/quiz-context";
 import { QuizScreen } from "@/components/quiz/quiz-screen";
@@ -42,14 +42,17 @@ function AppContent() {
     setScreen("phone");
   }, []);
 
+  useEffect(() => {
+    if (screen === "quiz" && isComplete) {
+      handleQuizComplete();
+    }
+  }, [screen, isComplete, handleQuizComplete]);
+
   if (screen === "landing") {
     return <Hero onStart={handleStartQuiz} />;
   }
 
   if (screen === "quiz") {
-    if (isComplete) {
-      handleQuizComplete();
-    }
     return <QuizScreen />;
   }
 

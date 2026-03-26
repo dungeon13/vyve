@@ -56,7 +56,7 @@ export function ScoreDisplay({ result, onContinue }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-white px-4 py-8 max-w-lg mx-auto">
+    <div className="min-h-screen px-4 py-8 max-w-lg mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -66,14 +66,14 @@ export function ScoreDisplay({ result, onContinue }: Props) {
         <h1 className="text-2xl font-display font-bold text-gray-900 mb-2">
           Your Vyve Score
         </h1>
-        <p className="text-gray-500">{message}</p>
+        <p className="text-gray-600">{message}</p>
       </motion.div>
 
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="flex justify-center mb-10"
+        className="flex justify-center mb-10 rounded-3xl border border-gray-200 bg-white/85 backdrop-blur p-4 shadow-xl shadow-vyve-indigo/5"
       >
         <ScoreRing score={result.composite_score} size={220} label="Composite Score" />
       </motion.div>
@@ -122,7 +122,7 @@ export function ScoreDisplay({ result, onContinue }: Props) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2 }}
-        className="bg-gradient-to-br from-vyve-indigo to-vyve-indigo-light rounded-2xl p-6 text-white mb-8"
+        className="bg-gradient-to-br from-vyve-indigo via-vyve-indigo-light to-vyve-indigo rounded-3xl p-6 text-white mb-8 shadow-xl shadow-vyve-indigo/20"
       >
         <p className="text-vyve-amber font-semibold text-sm mb-2">Your #1 Move</p>
         <p className="text-lg font-medium">
@@ -133,8 +133,8 @@ export function ScoreDisplay({ result, onContinue }: Props) {
       {/* Methodology */}
       <button
         onClick={handleMethodologyToggle}
-        className="w-full flex items-center justify-between py-3 text-gray-400 hover:text-gray-600 
-          transition-colors text-sm cursor-pointer"
+        className="w-full flex items-center justify-between py-3 px-2 rounded-xl text-gray-500 hover:text-gray-700 
+          hover:bg-white/60 transition-colors text-sm cursor-pointer"
       >
         <span>How we calculate this</span>
         {showMethodology ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -172,10 +172,10 @@ export function ScoreDisplay({ result, onContinue }: Props) {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
         onClick={onContinue}
-        className="w-full py-4 bg-vyve-indigo text-white rounded-2xl font-semibold text-lg
-          hover:bg-vyve-indigo-light transition-colors cursor-pointer mt-4"
+        className="w-full py-4 bg-gradient-to-r from-vyve-indigo to-vyve-indigo-light text-white rounded-2xl font-semibold text-lg
+          hover:shadow-xl hover:shadow-vyve-indigo/20 transition-all cursor-pointer mt-4"
       >
-        See Your Action Plan
+        See My 3 Priority Actions
       </motion.button>
     </div>
   );

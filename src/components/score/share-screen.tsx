@@ -62,6 +62,7 @@ function generateInsightCards(result: ScoreResult, answers: Partial<QuizAnswers>
 
 export function ShareScreen({ result, answers, onSaveScore }: Props) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState<string | null>(null);
   const cards = generateInsightCards(result, answers);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://vyve.app";
 
@@ -75,13 +76,19 @@ export function ShareScreen({ result, answers, onSaveScore }: Props) {
   const handleCopyLink = async (card: InsightCard) => {
     track.shareLinkCopied(card.id);
     const text = `${card.text}\n\nCheck yours: ${appUrl}/check`;
-    await navigator.clipboard.writeText(text);
-    setCopiedId(card.id);
-    setTimeout(() => setCopiedId(null), 2000);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(card.id);
+      setCopyError(null);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      setCopyError("Could not copy automatically. Please long-press and copy this screen text.");
+      setTimeout(() => setCopyError(null), 3000);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-white px-4 py-8 max-w-lg mx-auto">
+    <div className="min-h-screen px-4 py-8 max-w-lg mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -94,6 +101,9 @@ export function ShareScreen({ result, answers, onSaveScore }: Props) {
         <p className="text-gray-500 mt-2">
           Pick an insight card to share with friends. Your score stays private.
         </p>
+        {copyError && (
+          <p className="mt-3 text-sm text-vyve-rose">{copyError}</p>
+        )}
       </motion.div>
 
       <div className="space-y-4 mb-8">
@@ -103,7 +113,7 @@ export function ShareScreen({ result, answers, onSaveScore }: Props) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="bg-vyve-indigo rounded-2xl p-6 text-white relative overflow-hidden"
+            className="bg-gradient-to-br from-vyve-indigo via-vyve-indigo-light to-vyve-indigo rounded-3xl p-6 text-white relative overflow-hidden shadow-xl shadow-vyve-indigo/20"
           >
             <p className="text-xs text-vyve-amber font-semibold mb-2 uppercase tracking-wider">
               Did you know?
@@ -118,7 +128,7 @@ export function ShareScreen({ result, answers, onSaveScore }: Props) {
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => handleWhatsAppShare(card)}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-green-500 
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-green-500
                   rounded-xl font-semibold text-sm hover:bg-green-600 transition-colors cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4" />
@@ -126,7 +136,7 @@ export function ShareScreen({ result, answers, onSaveScore }: Props) {
               </button>
               <button
                 onClick={() => handleCopyLink(card)}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/10 
+                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/15
                   rounded-xl font-semibold text-sm hover:bg-white/20 transition-colors cursor-pointer"
               >
                 {copiedId === card.id ? (
@@ -149,8 +159,8 @@ export function ShareScreen({ result, answers, onSaveScore }: Props) {
       >
         <button
           onClick={onSaveScore}
-          className="w-full py-4 bg-vyve-indigo text-white rounded-2xl font-semibold text-lg
-            hover:bg-vyve-indigo-light transition-colors cursor-pointer"
+          className="w-full py-4 bg-gradient-to-r from-vyve-indigo to-vyve-indigo-light text-white rounded-2xl font-semibold text-lg
+            hover:shadow-xl hover:shadow-vyve-indigo/20 transition-all cursor-pointer"
         >
           Save My Score & Get Monday Briefs
         </button>

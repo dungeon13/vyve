@@ -24,6 +24,15 @@ export interface ScoreResult {
   cohort_key: string;
   weights: { f: number; c: number; h: number };
   lowest_pillar: "financial" | "career" | "health";
+  calibration_version?: string;
+  confidence?: number;
+  score_drivers?: Array<{
+    pillar: "financial" | "career" | "health";
+    metric: string;
+    percentile: number;
+    value: number;
+    weight: number;
+  }>;
 }
 
 export type QuestionType = "slider" | "chips" | "dropdown";

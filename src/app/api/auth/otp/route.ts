@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { generateOtpCode, hashOtp } from "@/lib/auth/otp-crypto";
+import {
+  generateOtpCode,
+  getOtpSecretConfigError,
+  hashOtp,
+} from "@/lib/auth/otp-crypto";
 import { digitsOnlyE164, sendWhatsAppText } from "@/lib/whatsapp/cloud-api";
 import {
   hintForMissingVyveOtpTable,
@@ -13,6 +17,14 @@ const SEND_WINDOW_MS = 15 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
   try {
+    const otpSecretHint = getOtpSecretConfigError();
+    if (otpSecretHint) {
+      return NextResponse.json(
+        { error: "Server OTP configuration missing", hint: otpSecretHint },
+        { status: 500 }
+      );
+    }
+
     const { phone } = await request.json() as { phone?: string };
 
     if (!phone || !phone.startsWith("+91") || phone.replace(/\D/g, "").length < 12) {
@@ -130,7 +142,13 @@ export async function POST(request: NextRequest) {
     console.error("OTP error:", error);
     const message = error instanceof Error ? error.message : "Internal server error";
     if (message.includes("OTP_SECRET")) {
-      return NextResponse.json({ error: "Server OTP configuration missing" }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: "Server OTP configuration missing",
+          hint: getOtpSecretConfigError() ?? message,
+        },
+        { status: 500 }
+      );
     }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

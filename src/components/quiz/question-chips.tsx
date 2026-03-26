@@ -11,18 +11,18 @@ interface Props {
 
 export function QuestionChips({ question, value, onSelect }: Props) {
   return (
-    <div className="flex flex-wrap gap-3 justify-center">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {question.options?.map((opt) => (
         <button
           key={opt.value}
           onClick={() => onSelect(opt.value)}
           className={cn(
-            "px-5 py-3 rounded-xl text-base font-medium transition-all duration-200",
+            "px-5 py-3.5 rounded-2xl text-base font-medium transition-all duration-200 text-left min-h-12",
             "border-2 cursor-pointer",
-            "hover:scale-105 active:scale-95",
+            "active:scale-[0.99]",
             value === opt.value
-              ? "bg-vyve-indigo text-white border-vyve-indigo shadow-lg shadow-vyve-indigo/20"
-              : "bg-white text-gray-700 border-gray-200 hover:border-vyve-indigo/40 hover:bg-gray-50"
+              ? "bg-gradient-to-r from-vyve-indigo to-vyve-indigo-light text-white border-vyve-indigo shadow-lg shadow-vyve-indigo/20"
+              : "bg-white/80 backdrop-blur text-gray-700 border-gray-200 hover:border-vyve-indigo/40 hover:bg-white"
           )}
         >
           {opt.label}

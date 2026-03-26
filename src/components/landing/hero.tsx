@@ -32,14 +32,14 @@ export function Hero({ onStart }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 pb-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center max-w-lg"
+          className="text-center max-w-xl"
         >
           {/* Brand */}
           <motion.div
@@ -54,12 +54,12 @@ export function Hero({ onStart }: Props) {
           </motion.div>
 
           {/* Hero */}
-          <h1 className="text-4xl md:text-5xl font-display font-extrabold text-gray-900 leading-tight mb-4">
+          <h1 className="text-4xl md:text-6xl font-display font-extrabold text-gray-900 leading-tight mb-4">
             Where do you{" "}
-            <span className="text-vyve-indigo">really</span> stand?
+            <span className="bg-gradient-to-r from-vyve-indigo to-vyve-amber bg-clip-text text-transparent">really</span> stand?
           </h1>
 
-          <p className="text-lg text-gray-500 mb-8 leading-relaxed">
+          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
             Your money. Your career. Your health.
             <br />
             Compared to <span className="text-gray-700 font-semibold">real peers</span>.
@@ -72,29 +72,38 @@ export function Hero({ onStart }: Props) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleStart}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-vyve-indigo text-white 
-              rounded-2xl font-semibold text-lg shadow-xl shadow-vyve-indigo/20
-              hover:bg-vyve-indigo-light transition-colors cursor-pointer"
+            aria-label="Get my Vyve score"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-vyve-indigo to-vyve-indigo-light text-white 
+              rounded-2xl font-semibold text-lg shadow-xl shadow-vyve-indigo/25 hover:shadow-2xl
+              transition-all cursor-pointer"
           >
-            Check My Score — Free
+            Get My Vyve Score
             <ArrowRight className="w-5 h-5" />
           </motion.button>
+          <p className="text-sm text-gray-500 mt-2">~2 minutes • no sign-up required</p>
 
           {/* Trust */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="flex items-center justify-center gap-2 mt-6 text-sm text-gray-400"
+            className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"
           >
-            <Shield className="w-4 h-4" />
-            <span>Your data stays on your device. We never sell it. Delete everything in 2 taps.</span>
+            <span className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-full bg-white/85 backdrop-blur border border-gray-200 text-gray-700">
+              <Shield className="w-3.5 h-3.5" /> Private by default
+            </span>
+            <span className="inline-flex items-center justify-center px-3 py-2 rounded-full bg-white/85 backdrop-blur border border-gray-200 text-gray-700">
+              No signup required
+            </span>
+            <span className="inline-flex items-center justify-center px-3 py-2 rounded-full bg-white/85 backdrop-blur border border-gray-200 text-gray-700">
+              Delete anytime
+            </span>
           </motion.div>
         </motion.div>
       </div>
 
       {/* Scrolling ticker */}
-      <div className="bg-gray-50 border-t border-gray-100 py-4 overflow-hidden">
+      <div className="bg-white/70 backdrop-blur border-t border-gray-200 py-4 overflow-hidden">
         <div ref={tickerRef} className="flex animate-ticker whitespace-nowrap">
           {[...TICKER_INSIGHTS, ...TICKER_INSIGHTS].map((insight, i) => (
             <span key={i} className="inline-block px-8 text-sm text-gray-500 font-medium">

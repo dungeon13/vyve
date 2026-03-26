@@ -228,6 +228,31 @@ export interface Database {
         };
         Update: never;
       };
+      vyve_action_interest: {
+        Row: {
+          id: string;
+          session_id: string;
+          action_key: string;
+          action_title: string;
+          pillar: string;
+          name: string | null;
+          email: string | null;
+          phone: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          action_key: string;
+          action_title: string;
+          pillar: string;
+          name?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          created_at?: string;
+        };
+        Update: never;
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

@@ -5,6 +5,7 @@ import { DollarSign, TrendingUp, Heart, AlertTriangle, CheckCircle, ArrowRight }
 import type { QuizAnswers, ScoreResult } from "@/types/quiz";
 import { getActionsForUser, type Action } from "@/data/actions-library";
 import { track } from "@/lib/analytics/events";
+import { useRouter } from "next/navigation";
 
 interface Props {
   answers: QuizAnswers;
@@ -19,6 +20,7 @@ const PILLAR_CONFIG = {
 };
 
 export function ActionPlan({ answers, result, onContinue }: Props) {
+  const router = useRouter();
   const actions = getActionsForUser(answers as unknown as Record<string, unknown>);
 
   return (
@@ -59,13 +61,22 @@ export function ActionPlan({ answers, result, onContinue }: Props) {
 
               <div className="space-y-3">
                 {pillarActions.risk && (
-                  <ActionCard action={pillarActions.risk} variant="risk" />
+                  <ActionCard action={pillarActions.risk} variant="risk" onOpenComingSoon={(action) => {
+                    const title = encodeURIComponent(action.title);
+                    router.push(`/coming-soon?actionKey=${action.key}&pillar=${action.pillar}&title=${title}`);
+                  }} />
                 )}
                 {pillarActions.win && (
-                  <ActionCard action={pillarActions.win} variant="win" />
+                  <ActionCard action={pillarActions.win} variant="win" onOpenComingSoon={(action) => {
+                    const title = encodeURIComponent(action.title);
+                    router.push(`/coming-soon?actionKey=${action.key}&pillar=${action.pillar}&title=${title}`);
+                  }} />
                 )}
                 {pillarActions.action && (
-                  <ActionCard action={pillarActions.action} variant="action" />
+                  <ActionCard action={pillarActions.action} variant="action" onOpenComingSoon={(action) => {
+                    const title = encodeURIComponent(action.title);
+                    router.push(`/coming-soon?actionKey=${action.key}&pillar=${action.pillar}&title=${title}`);
+                  }} />
                 )}
               </div>
             </motion.div>
@@ -90,7 +101,15 @@ export function ActionPlan({ answers, result, onContinue }: Props) {
   );
 }
 
-function ActionCard({ action, variant }: { action: Action; variant: "risk" | "win" | "action" }) {
+function ActionCard({
+  action,
+  variant,
+  onOpenComingSoon,
+}: {
+  action: Action;
+  variant: "risk" | "win" | "action";
+  onOpenComingSoon: (action: Action) => void;
+}) {
   const variantStyles = {
     risk: { icon: <AlertTriangle className="w-4 h-4 text-red-500" />, border: "border-l-red-400" },
     win: { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, border: "border-l-emerald-400" },
@@ -101,7 +120,10 @@ function ActionCard({ action, variant }: { action: Action; variant: "risk" | "wi
 
   return (
     <button
-      onClick={() => track.actionClicked(action.pillar, action.key)}
+      onClick={() => {
+        track.actionClicked(action.pillar, action.key);
+        onOpenComingSoon(action);
+      }}
       className={`w-full text-left p-3 rounded-lg border-l-4 ${style.border} bg-gray-50
         hover:bg-gray-100 transition-colors cursor-pointer`}
     >

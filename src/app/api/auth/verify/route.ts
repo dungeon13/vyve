@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { hashOtp } from "@/lib/auth/otp-crypto";
+import { getOtpSecretConfigError, hashOtp } from "@/lib/auth/otp-crypto";
 import { hintForMissingVyveOtpTable, supabaseErrorSummary } from "@/lib/supabase/errors";
 
 const MAX_ATTEMPTS = 5;
 
 export async function POST(request: NextRequest) {
   try {
+    const otpSecretHint = getOtpSecretConfigError();
+    if (otpSecretHint) {
+      return NextResponse.json(
+        { error: "Server OTP configuration missing", hint: otpSecretHint },
+        { status: 500 }
+      );
+    }
+
     const { phone, otp } = await request.json() as { phone?: string; otp?: string };
 
     if (!phone || !otp || otp.length < 4 || otp.length > 8) {
@@ -92,7 +100,13 @@ export async function POST(request: NextRequest) {
     console.error("Verify error:", error);
     const message = error instanceof Error ? error.message : "";
     if (message.includes("OTP_SECRET")) {
-      return NextResponse.json({ error: "Server OTP configuration missing" }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: "Server OTP configuration missing",
+          hint: getOtpSecretConfigError() ?? message,
+        },
+        { status: 500 }
+      );
     }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

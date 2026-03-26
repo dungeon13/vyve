@@ -31,11 +31,11 @@ export function QuestionDropdown({ question, value, onSelect }: Props) {
         placeholder="Search city..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-base
+        className="w-full px-4 py-3 border-2 border-gray-200 bg-white/85 backdrop-blur rounded-2xl text-base
           focus:border-vyve-indigo focus:outline-none transition-colors"
       />
 
-      <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
+      <div className="max-h-72 overflow-y-auto space-y-2 pr-1 rounded-2xl bg-white/70 border border-gray-100 p-2">
         {!filtered && pinned.length > 0 && (
           <>
             <p className="text-xs text-gray-400 uppercase tracking-wide px-1">
@@ -79,10 +79,10 @@ function CityButton({
     <button
       onClick={onClick}
       className={cn(
-        "w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all",
+        "w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all min-h-12",
         "border-2 cursor-pointer",
         selected
-          ? "bg-vyve-indigo text-white border-vyve-indigo"
+          ? "bg-gradient-to-r from-vyve-indigo to-vyve-indigo-light text-white border-vyve-indigo"
           : "bg-white text-gray-700 border-gray-100 hover:border-vyve-indigo/30 hover:bg-gray-50"
       )}
     >

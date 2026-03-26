@@ -22,8 +22,8 @@ export function QuestionSlider({ question, value, onSelect }: Props) {
 
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
-      <div className="text-center">
-        <span className="text-5xl font-display font-bold text-vyve-indigo">
+      <div className="text-center rounded-2xl border border-gray-200 bg-white/85 backdrop-blur p-4">
+        <span className="text-5xl font-display font-bold bg-gradient-to-r from-vyve-indigo to-vyve-amber bg-clip-text text-transparent">
           {localValue}
         </span>
         {slider.unit && (
@@ -69,10 +69,10 @@ export function QuestionSlider({ question, value, onSelect }: Props) {
       <button
         type="button"
         onClick={() => onSelect(localValue)}
-        className="w-full py-3 bg-vyve-indigo text-white rounded-xl font-semibold
-          hover:bg-vyve-indigo-light transition-colors cursor-pointer"
+        className="w-full py-3 bg-gradient-to-r from-vyve-indigo to-vyve-indigo-light text-white rounded-2xl font-semibold
+          hover:shadow-lg hover:shadow-vyve-indigo/20 transition-all cursor-pointer"
       >
-        Continue
+        Use This Answer
       </button>
     </div>
   );

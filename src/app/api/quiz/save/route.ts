@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to save quiz" }, { status: 500 });
     }
 
-    const { error: scoreError } = await supabaseAdmin
+    const { data: scoreData, error: scoreError } = await supabaseAdmin
       .from("vyve_scores")
       .insert({
         session_id,
@@ -38,11 +38,37 @@ export async function POST(request: NextRequest) {
         emotional_state: result.emotional_state,
         composite_score: result.composite_score,
         cohort_key: result.cohort_key,
-      });
+      })
+      .select("id")
+      .single();
 
     if (scoreError) {
       console.error("Score save error:", scoreError);
       return NextResponse.json({ error: "Failed to save score" }, { status: 500 });
+    }
+
+    if (scoreData?.id && (result.calibration_version || result.score_drivers)) {
+      const { error: explainError } = await supabaseAdmin
+        .from("vyve_score_explanations")
+        .insert({
+          score_id: scoreData.id,
+          calibration_version: result.calibration_version ?? "det-v1",
+          top_positive_drivers: (result.score_drivers ?? []).slice(0, 3),
+          top_risk_drivers: (result.score_drivers ?? [])
+            .slice()
+            .sort(
+              (
+                a: { percentile: number },
+                b: { percentile: number }
+              ) => a.percentile - b.percentile
+            )
+            .slice(0, 3),
+          confidence: result.confidence ?? 0.5,
+        });
+      if (explainError) {
+        // Non-blocking, score is already persisted.
+        console.error("Score explanation save error:", explainError);
+      }
     }
 
     await supabaseAdmin.from("vyve_engagement_events").insert({
