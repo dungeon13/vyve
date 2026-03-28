@@ -8,7 +8,7 @@ import { QuestionSlider } from "./question-slider";
 import { QuestionDropdown } from "./question-dropdown";
 import { QuizQuestion } from "./quiz-question";
 import type { QuizAnswers } from "@/types/quiz";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, House } from "lucide-react";
 
 const slideVariants = {
   enter: (dir: number) => ({
@@ -22,7 +22,12 @@ const slideVariants = {
   }),
 };
 
-export function QuizScreen() {
+interface QuizScreenProps {
+  /** Return to landing and clear in-progress quiz */
+  onGoHome: () => void;
+}
+
+export function QuizScreen({ onGoHome }: QuizScreenProps) {
   const { currentQuestion, answers, config, goBack, answerQuestion, isComplete } = useQuiz();
   const [animating, setAnimating] = useState(false);
   const [slideDir, setSlideDir] = useState(1);
@@ -79,21 +84,30 @@ export function QuizScreen() {
         />
       </div>
 
-      <div className="flex items-center border-b border-[var(--border)] bg-[var(--bg2)]/90 px-[var(--pad-x)] py-3 backdrop-blur-md">
-        {currentQuestion > 0 ? (
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--bg2)]/90 px-[var(--pad-x)] py-3 backdrop-blur-md">
+        <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
+          {currentQuestion > 0 ? (
+            <button
+              type="button"
+              onClick={handleBack}
+              aria-label="Go to previous question"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-xl px-2 text-[var(--text2)] transition-colors hover:text-[var(--text)]"
+            >
+              <ChevronLeft className="h-5 w-5 shrink-0" aria-hidden />
+              <span className="hidden text-sm font-semibold sm:inline">Back</span>
+            </button>
+          ) : null}
           <button
             type="button"
-            onClick={handleBack}
-            aria-label="Go to previous question"
-            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-1 rounded-xl px-2 text-[var(--text2)] transition-colors hover:text-[var(--text)]"
+            onClick={onGoHome}
+            aria-label="Back to home page"
+            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center gap-1.5 rounded-xl px-2 text-[var(--text2)] transition-colors hover:bg-[var(--glass)] hover:text-[var(--teal)]"
           >
-            <ChevronLeft className="h-5 w-5" aria-hidden />
-            <span className="text-sm font-semibold">Back</span>
+            <House className="h-5 w-5 shrink-0" aria-hidden />
+            <span className="text-sm font-medium">Home</span>
           </button>
-        ) : (
-          <div className="min-h-[44px] min-w-[44px]" aria-hidden />
-        )}
-        <div className="ml-auto text-right">
+        </div>
+        <div className="shrink-0 text-right">
           <span className="block font-mono-label text-[12px] font-semibold text-[var(--text2)]">
             Question {currentQuestion + 1} of {config.total_questions}
           </span>

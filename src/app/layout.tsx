@@ -6,6 +6,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { PostHogProvider } from "@/lib/analytics/posthog-provider";
+import { AppShell } from "@/components/dashboard/app-shell";
 import { AppProviders } from "./providers";
 
 const playfair = Playfair_Display({
@@ -51,7 +52,9 @@ export default function RootLayout({
         className={`${playfair.variable} ${dmSans.variable} ${jetbrains.variable} min-h-screen`}
       >
         <PostHogProvider>
-          <AppProviders>{children}</AppProviders>
+          <AppProviders>
+            <AppShell>{children}</AppShell>
+          </AppProviders>
         </PostHogProvider>
       </body>
     </html>

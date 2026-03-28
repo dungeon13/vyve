@@ -20,7 +20,7 @@ type AppScreen = "landing" | "quiz" | "loading" | "score" | "actions" | "share" 
 function AppContent() {
   const router = useRouter();
   const [screen, setScreen] = useState<AppScreen>("landing");
-  const { answers, isComplete, scoreResult, setScoreResult } = useQuiz();
+  const { answers, isComplete, scoreResult, setScoreResult, resetQuiz } = useQuiz();
 
   const handleStartQuiz = useCallback(() => {
     setScreen("quiz");
@@ -44,6 +44,11 @@ function AppContent() {
     setScreen("phone");
   }, []);
 
+  const handleGoHomeFromQuiz = useCallback(() => {
+    resetQuiz();
+    setScreen("landing");
+  }, [resetQuiz]);
+
   useEffect(() => {
     if (screen === "quiz" && isComplete) {
       handleQuizComplete();
@@ -55,7 +60,7 @@ function AppContent() {
   }
 
   if (screen === "quiz") {
-    return <QuizScreen />;
+    return <QuizScreen onGoHome={handleGoHomeFromQuiz} />;
   }
 
   if (screen === "loading") {
