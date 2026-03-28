@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { QuizQuestion } from "@/types/quiz";
 
@@ -19,26 +20,23 @@ export function QuestionDropdown({ question, value, onSelect }: Props) {
   const rest = dd.options.filter((o) => !pinnedSet.has(o.value));
 
   const filtered = search
-    ? [...pinned, ...rest].filter((o) =>
-        o.label.toLowerCase().includes(search.toLowerCase())
-      )
+    ? [...pinned, ...rest].filter((o) => o.label.toLowerCase().includes(search.toLowerCase()))
     : null;
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-4">
+    <div className="mx-auto w-full max-w-md space-y-4">
       <input
         type="text"
         placeholder="Search city..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-4 py-3 border-2 border-gray-200 bg-white/85 backdrop-blur rounded-2xl text-base
-          focus:border-vyve-indigo focus:outline-none transition-colors"
+        className="w-full rounded-2xl border-2 border-[var(--border)] bg-[var(--bg3)] px-4 py-3 text-base text-[var(--text)] transition-colors placeholder:text-[var(--text3)] focus:border-[var(--teal)] focus:outline-none"
       />
 
-      <div className="max-h-72 overflow-y-auto space-y-2 pr-1 rounded-2xl bg-white/70 border border-gray-100 p-2">
+      <div className="max-h-72 space-y-2 overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--bg2)]/90 p-2">
         {!filtered && pinned.length > 0 && (
           <>
-            <p className="text-xs text-gray-400 uppercase tracking-wide px-1">
+            <p className="px-1 font-mono-label text-[10px] uppercase tracking-wider text-[var(--text3)]">
               Popular cities
             </p>
             {pinned.map((opt) => (
@@ -49,7 +47,7 @@ export function QuestionDropdown({ question, value, onSelect }: Props) {
                 onClick={() => onSelect(opt.value)}
               />
             ))}
-            <div className="border-t border-gray-100 my-2" />
+            <div className="my-2 border-t border-[var(--border)]" />
           </>
         )}
 
@@ -76,17 +74,20 @@ function CityButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <motion.button
+      type="button"
+      whileHover={{ x: 3 }}
+      whileTap={{ scale: 0.99 }}
       onClick={onClick}
       className={cn(
-        "w-full text-left px-4 py-3 rounded-xl text-base font-medium transition-all min-h-12",
-        "border-2 cursor-pointer",
+        "min-h-[48px] w-full rounded-xl border-2 px-4 py-3 text-left text-base font-semibold transition-colors",
+        "cursor-pointer",
         selected
-          ? "bg-gradient-to-r from-vyve-indigo to-vyve-indigo-light text-white border-vyve-indigo"
-          : "bg-white text-gray-700 border-gray-100 hover:border-vyve-indigo/30 hover:bg-gray-50"
+          ? "border-[var(--teal)] bg-[var(--teal-dim)] text-[var(--text)]"
+          : "border-transparent bg-transparent text-[var(--text2)] hover:bg-[var(--glass)]"
       )}
     >
       {label}
-    </button>
+    </motion.button>
   );
 }

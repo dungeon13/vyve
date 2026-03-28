@@ -1,27 +1,41 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import {
+  Playfair_Display,
+  DM_Sans,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
 import { PostHogProvider } from "@/lib/analytics/posthog-provider";
+import { AppProviders } from "./providers";
 
-const inter = Inter({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-display",
+  variable: "--font-dm-sans",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
-  title: "Vyve — See Your Life Clearly",
+  title: "LifeScore — Know Where You Stand in India",
   description:
-    "Your money. Your career. Your health. Compared to real peers. 2 minutes. Free. No sign-up.",
+    "Holistic life benchmarking for Indian professionals. Financial, career, and health — vs real peers. 2 minutes. Free.",
   openGraph: {
-    title: "Vyve — Where Do You Really Stand?",
+    title: "LifeScore — Know Where You Stand",
     description:
-      "Benchmark your financial health, career trajectory, and wellness against thousands of professionals like you. Free. 2 minutes.",
+      "Benchmark money, career, and wellness against peers your age, city, and industry.",
     type: "website",
   },
 };
@@ -33,8 +47,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${plusJakarta.variable} font-sans`}>
-        <PostHogProvider>{children}</PostHogProvider>
+      <body
+        className={`${playfair.variable} ${dmSans.variable} ${jetbrains.variable} min-h-screen`}
+      >
+        <PostHogProvider>
+          <AppProviders>{children}</AppProviders>
+        </PostHogProvider>
       </body>
     </html>
   );

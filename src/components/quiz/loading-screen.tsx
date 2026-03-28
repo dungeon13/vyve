@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 const MESSAGES = [
-  "Crunching your numbers...",
-  "Comparing with 14,000+ peers...",
-  "Building your action plan...",
+  "Crunching your numbers…",
+  "Comparing with 14,000+ peers…",
+  "Building your action plan…",
 ];
 
 interface Props {
@@ -32,18 +32,19 @@ export function LoadingScreen({ onComplete }: Props) {
   }, [onComplete]);
 
   return (
-    <div className="min-h-screen bg-vyve-indigo flex flex-col items-center justify-center px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bg)] px-[var(--pad-x)]">
       <motion.div
-        className="w-20 h-20 border-4 border-vyve-amber/30 border-t-vyve-amber rounded-full"
+        className="h-20 w-20 rounded-full border-4 border-[var(--teal)]/25 border-t-[var(--teal)]"
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        aria-hidden
       />
 
       <motion.p
         key={msgIdx}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-white text-lg font-medium mt-8 text-center"
+        className="mt-8 text-center font-display text-[17px] font-semibold text-[var(--text)]"
       >
         {MESSAGES[msgIdx]}
       </motion.p>

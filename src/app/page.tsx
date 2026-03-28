@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Hero } from "@/components/landing/hero";
-import { QuizProvider, useQuiz } from "@/components/quiz/quiz-context";
+import { useQuiz } from "@/components/quiz/quiz-context";
 import { QuizScreen } from "@/components/quiz/quiz-screen";
 import { LoadingScreen } from "@/components/quiz/loading-screen";
 import { ScoreDisplay } from "@/components/score/score-display";
@@ -17,6 +18,7 @@ import type { QuizAnswers } from "@/types/quiz";
 type AppScreen = "landing" | "quiz" | "loading" | "score" | "actions" | "share" | "phone";
 
 function AppContent() {
+  const router = useRouter();
   const [screen, setScreen] = useState<AppScreen>("landing");
   const { answers, isComplete, scoreResult, setScoreResult } = useQuiz();
 
@@ -61,7 +63,13 @@ function AppContent() {
   }
 
   if (screen === "score" && scoreResult) {
-    return <ScoreDisplay result={scoreResult} onContinue={() => setScreen("actions")} />;
+    return (
+      <ScoreDisplay
+        result={scoreResult}
+        onContinueToDashboard={() => router.replace("/dashboard")}
+        onContinueToActions={() => setScreen("actions")}
+      />
+    );
   }
 
   if (screen === "actions" && scoreResult) {
@@ -80,6 +88,7 @@ function AppContent() {
         result={scoreResult}
         answers={answers}
         onSaveScore={handleSaveScore}
+        onSkip={() => router.replace("/dashboard")}
       />
     );
   }
@@ -87,8 +96,8 @@ function AppContent() {
   if (screen === "phone") {
     return (
       <PhoneCapture
-        onVerified={() => setScreen("landing")}
-        onSkip={() => setScreen("landing")}
+        onVerified={() => router.replace("/dashboard")}
+        onSkip={() => router.replace("/dashboard")}
       />
     );
   }
@@ -110,9 +119,5 @@ async function saveQuizToServer(answers: QuizAnswers, result: ReturnType<typeof 
 }
 
 export default function Home() {
-  return (
-    <QuizProvider>
-      <AppContent />
-    </QuizProvider>
-  );
+  return <AppContent />;
 }

@@ -2,15 +2,23 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { MessageCircle, Link2, Copy, Check, Shield, ChevronDown, ChevronUp } from "lucide-react";
 import { ScoreRing } from "./score-ring";
 import { PercentileBar } from "./percentile-bar";
-import { ChevronDown, ChevronUp, Shield, TrendingUp, Heart, DollarSign } from "lucide-react";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { GlassCard } from "@/components/ui/glass-card";
+import { SectionLabel } from "@/components/ui/section-label";
+import { useQuiz } from "@/components/quiz/quiz-context";
 import type { ScoreResult, EmotionalState } from "@/types/quiz";
 import { track } from "@/lib/analytics/events";
+import { formatPeerContextLine } from "@/lib/format-peer-line";
+import { DollarSign, TrendingUp, Heart } from "lucide-react";
 
 interface Props {
   result: ScoreResult;
-  onContinue: () => void;
+  onContinueToDashboard: () => void;
+  onContinueToActions: () => void;
 }
 
 const FRAMING: Record<EmotionalState, Record<string, string>> = {
@@ -32,10 +40,25 @@ const FRAMING: Record<EmotionalState, Record<string, string>> = {
   },
 };
 
-const PILLAR_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  financial: { label: "Financial Health", icon: <DollarSign className="w-5 h-5" />, color: "#10b981" },
-  career: { label: "Career Trajectory", icon: <TrendingUp className="w-5 h-5" />, color: "#3b82f6" },
-  health: { label: "Wellness", icon: <Heart className="w-5 h-5" />, color: "#f43f5e" },
+const PILLAR_META: Record<
+  string,
+  { label: string; icon: React.ReactNode; color: string }
+> = {
+  financial: {
+    label: "Financial",
+    icon: <DollarSign className="h-5 w-5" aria-hidden />,
+    color: "#818cf8",
+  },
+  career: {
+    label: "Career",
+    icon: <TrendingUp className="h-5 w-5" aria-hidden />,
+    color: "var(--gold)",
+  },
+  health: {
+    label: "Health",
+    icon: <Heart className="h-5 w-5" aria-hidden />,
+    color: "var(--teal)",
+  },
 };
 
 const MOVE_TEXT: Record<string, string> = {
@@ -44,139 +67,228 @@ const MOVE_TEXT: Record<string, string> = {
   health: "Health is your weakest link right now. Fix sleep or exercise first.",
 };
 
-export function ScoreDisplay({ result, onContinue }: Props) {
+function clampPct(n: number): number {
+  return Math.min(99, Math.max(1, Math.round(n)));
+}
+
+export function ScoreDisplay({
+  result,
+  onContinueToDashboard,
+  onContinueToActions,
+}: Props) {
+  const router = useRouter();
+  const { answers } = useQuiz();
   const [showMethodology, setShowMethodology] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const scoreLevel = result.composite_score >= 60 ? "high" : "low";
   const message = FRAMING[result.emotional_state]?.[scoreLevel] ?? FRAMING.okay[scoreLevel];
+  const peerLine = formatPeerContextLine(answers);
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const shareBody = `${peerLine}\n\nMy LifeScore: ${result.composite_score}/100. Where do you stand? ${appUrl}`;
+
+  const handleWhatsApp = () => {
+    track.shareWhatsappClicked("score_reveal");
+    const url = `https://wa.me/?text=${encodeURIComponent(shareBody)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleCopy = async () => {
+    track.shareLinkCopied("score_reveal");
+    try {
+      await navigator.clipboard.writeText(shareBody);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
 
   const handleMethodologyToggle = () => {
     if (!showMethodology) track.methodologyExpanded();
     setShowMethodology((prev) => !prev);
   };
 
+  const openDrilldown = (pillar: "financial" | "career" | "health") => {
+    router.push(`/drilldown/${pillar}`);
+  };
+
   return (
-    <div className="min-h-screen px-4 py-8 max-w-lg mx-auto">
+    <div className="mx-auto min-h-screen max-w-[480px] px-[var(--pad-x)] py-8">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-8"
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+        className="mb-6 text-center"
       >
-        <h1 className="text-2xl font-display font-bold text-gray-900 mb-2">
-          Your Vyve Score
+        <SectionLabel className="justify-center">Your snapshot</SectionLabel>
+        <h1 className="font-display text-[clamp(26px,7vw,34px)] font-semibold leading-tight tracking-[-0.02em] text-[var(--text)]">
+          Your LifeScore
         </h1>
-        <p className="text-gray-600">{message}</p>
+        <p className="mt-2 text-[15px] leading-relaxed text-[var(--text2)]">{message}</p>
       </motion.div>
 
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="flex justify-center mb-10 rounded-3xl border border-gray-200 bg-white/85 backdrop-blur p-4 shadow-xl shadow-vyve-indigo/5"
-      >
-        <ScoreRing score={result.composite_score} size={220} label="Composite Score" />
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="flex items-center gap-2 justify-center mb-8"
-      >
-        <Shield className="w-4 h-4 text-vyve-amber" />
-        <span className="text-sm text-gray-500">Early estimate — accuracy improves with more users</span>
-      </motion.div>
-
-      <motion.div
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="space-y-6 mb-10"
+        transition={{ delay: 0.15 }}
+        className="mb-4 text-center font-mono-label text-[11px] leading-snug text-[var(--text3)]"
       >
-        <PercentileBar
-          label={PILLAR_LABELS.financial.label}
-          score={result.financial_score}
-          percentile={50 + Math.floor((result.financial_score - 50) * 0.6)}
-          color={PILLAR_LABELS.financial.color}
-          icon={PILLAR_LABELS.financial.icon}
-        />
-        <PercentileBar
-          label={PILLAR_LABELS.career.label}
-          score={result.career_score}
-          percentile={50 + Math.floor((result.career_score - 50) * 0.6)}
-          color={PILLAR_LABELS.career.color}
-          icon={PILLAR_LABELS.career.icon}
-        />
-        <PercentileBar
-          label={PILLAR_LABELS.health.label}
-          score={result.health_score}
-          percentile={50 + Math.floor((result.health_score - 50) * 0.6)}
-          color={PILLAR_LABELS.health.color}
-          icon={PILLAR_LABELS.health.icon}
-        />
+        {peerLine}
+      </motion.p>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="mb-8 flex justify-center"
+      >
+        <div className="elevated-card p-6">
+          <ScoreRing
+            score={result.composite_score}
+            size={220}
+            label="Composite"
+            color="var(--teal)"
+          />
+        </div>
       </motion.div>
 
-      {/* #1 Move Card */}
+      <div className="mb-6 flex items-center justify-center gap-2 text-[var(--text3)]">
+        <Shield className="h-4 w-4 text-[var(--gold)]" aria-hidden />
+        <span className="text-center text-[12px] leading-snug">
+          Early estimate — accuracy improves with more users
+        </span>
+      </div>
+
+      <div className="mb-8 space-y-4">
+        <PercentileBar
+          label={PILLAR_META.financial.label}
+          score={result.financial_score}
+          percentile={clampPct(50 + Math.floor((result.financial_score - 50) * 0.6))}
+          color={PILLAR_META.financial.color}
+          icon={PILLAR_META.financial.icon}
+          onPress={() => openDrilldown("financial")}
+        />
+        <PercentileBar
+          label={PILLAR_META.career.label}
+          score={result.career_score}
+          percentile={clampPct(50 + Math.floor((result.career_score - 50) * 0.6))}
+          color={PILLAR_META.career.color}
+          icon={PILLAR_META.career.icon}
+          onPress={() => openDrilldown("career")}
+        />
+        <PercentileBar
+          label={PILLAR_META.health.label}
+          score={result.health_score}
+          percentile={clampPct(50 + Math.floor((result.health_score - 50) * 0.6))}
+          color={PILLAR_META.health.color}
+          icon={PILLAR_META.health.icon}
+          onPress={() => openDrilldown("health")}
+        />
+      </div>
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2 }}
-        className="bg-gradient-to-br from-vyve-indigo via-vyve-indigo-light to-vyve-indigo rounded-3xl p-6 text-white mb-8 shadow-xl shadow-vyve-indigo/20"
+        transition={{ delay: 0.5 }}
+        className="pillar-career mb-8 rounded-[var(--radius-card)] border border-[var(--border)] p-5"
       >
-        <p className="text-vyve-amber font-semibold text-sm mb-2">Your #1 Move</p>
-        <p className="text-lg font-medium">
+        <p className="font-mono-label text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--gold)]">
+          Biggest opportunity
+        </p>
+        <p className="mt-2 font-display text-[18px] font-semibold leading-snug text-[var(--text)]">
           {MOVE_TEXT[result.lowest_pillar]}
         </p>
       </motion.div>
 
-      {/* Methodology */}
-      <button
-        onClick={handleMethodologyToggle}
-        className="w-full flex items-center justify-between py-3 px-2 rounded-xl text-gray-500 hover:text-gray-700 
-          hover:bg-white/60 transition-colors text-sm cursor-pointer"
+      <div className="mb-6 grid grid-cols-2 gap-3">
+        <motion.button
+          type="button"
+          whileHover={{ x: 3 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleWhatsApp}
+          aria-label="Share score on WhatsApp"
+          className="flex min-h-[48px] items-center justify-center gap-2 rounded-[16px] bg-[#25D366] font-display text-[15px] font-semibold text-black"
+        >
+          <MessageCircle className="h-5 w-5" aria-hidden />
+          WhatsApp
+        </motion.button>
+        <motion.button
+          type="button"
+          whileHover={{ x: 3 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleCopy}
+          aria-label="Copy score link"
+          className="flex min-h-[48px] items-center justify-center gap-2 rounded-[16px] border border-[var(--border2)] bg-[var(--glass)] font-display text-[15px] font-semibold text-[var(--text)]"
+        >
+          {copied ? <Check className="h-5 w-5 text-[var(--green)]" /> : <Copy className="h-5 w-5" />}
+          {copied ? "Copied" : "Copy"}
+        </motion.button>
+      </div>
+
+      <PrimaryButton
+        onClick={onContinueToDashboard}
+        className="mb-3"
+        aria-label="Open your dashboard"
       >
-        <span>How we calculate this</span>
-        {showMethodology ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        Open my dashboard
+      </PrimaryButton>
+
+      <button
+        type="button"
+        onClick={onContinueToActions}
+        className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[16px] py-3 font-medium text-[15px] text-[var(--text2)] transition-colors hover:text-[var(--text)]"
+        aria-label="See three priority actions and share"
+      >
+        <Link2 className="h-4 w-4" aria-hidden />
+        Priority actions &amp; share
       </button>
 
-      {showMethodology && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          className="text-sm text-gray-500 space-y-3 pb-6"
+      <GlassCard className="mt-8">
+        <button
+          type="button"
+          onClick={handleMethodologyToggle}
+          className="flex min-h-[48px] w-full items-center justify-between gap-2 rounded-xl px-1 py-2 text-left text-[13px] text-[var(--text2)] transition-colors hover:bg-[var(--glass)] hover:text-[var(--text)]"
+          aria-expanded={showMethodology}
         >
-          <p>
-            <strong>Financial (35%):</strong> Based on savings rate, insurance coverage, and debt burden. 
-            Family-supporting users are benchmarked against a separate sub-cohort.
-          </p>
-          <p>
-            <strong>Career (30%):</strong> Salary percentile within your industry × city × experience cohort, 
-            plus career velocity (actual vs. expected growth).
-          </p>
-          <p>
-            <strong>Health (20%):</strong> Sleep duration and exercise frequency, weighted by clinical guidelines.
-          </p>
-          <p>
-            <strong>Emotional Pulse (15%):</strong> Adjusts pillar weights — if you&apos;re overwhelmed, 
-            we weight health and financial more heavily.
-          </p>
-          <p className="text-xs text-gray-400">
-            All scoring happens on your device. Your raw answers never leave your browser.
-          </p>
-        </motion.div>
-      )}
+          <span>How we calculate this</span>
+          {showMethodology ? (
+            <ChevronUp className="h-4 w-4 shrink-0" aria-hidden />
+          ) : (
+            <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+          )}
+        </button>
 
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        onClick={onContinue}
-        className="w-full py-4 bg-gradient-to-r from-vyve-indigo to-vyve-indigo-light text-white rounded-2xl font-semibold text-lg
-          hover:shadow-xl hover:shadow-vyve-indigo/20 transition-all cursor-pointer mt-4"
-      >
-        See My 3 Priority Actions
-      </motion.button>
+        {showMethodology && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="space-y-3 border-t border-[var(--border)] pt-4 text-[13px] leading-relaxed text-[var(--text2)]"
+          >
+            <p>
+              <strong className="text-[var(--text)]">Financial (35%):</strong> Savings rate, insurance
+              coverage, and debt burden. Family-supporting users are benchmarked against a separate
+              sub-cohort.
+            </p>
+            <p>
+              <strong className="text-[var(--text)]">Career (30%):</strong> Salary percentile within your
+              industry × city × experience cohort, plus career velocity.
+            </p>
+            <p>
+              <strong className="text-[var(--text)]">Health (20%):</strong> Sleep and exercise, weighted by
+              clinical guidelines.
+            </p>
+            <p>
+              <strong className="text-[var(--text)]">Emotional pulse (15%):</strong> Adjusts pillar weights —
+              if you&apos;re overwhelmed, we weight health and financial more heavily.
+            </p>
+            <p className="font-mono-label text-[10px] text-[var(--text3)]">
+              Scoring runs on your device. Raw answers are not sent to our servers for calculation.
+            </p>
+          </motion.div>
+        )}
+      </GlassCard>
     </div>
   );
 }

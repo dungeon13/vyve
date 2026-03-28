@@ -1,0 +1,531 @@
+You are rebuilding the entire UI/UX of a peer benchmarking application called LifeScore. Read the entire codebase at C:\Users\Hp\Documents\Avin_Work_Space\stealth first, understand every existing screen, route, component, and data structure — then completely replace the UI/UX with a world-class design. Do not change any business logic, API calls, or backend code. Only rebuild the frontend.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — READ AND UNDERSTAND THE REPO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Before writing a single line of code:
+1. Read the entire directory tree
+2. Read every page/screen file
+3. Read every existing component
+4. Read the routing structure
+5. Read all API calls and data shapes
+6. Read package.json to understand what is already installed
+7. Map every screen to its route
+
+Only after fully understanding the codebase, begin the rebuild.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — WHAT YOU ARE BUILDING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+LifeScore is India's first holistic life benchmarking and elevation platform. It shows Indian working professionals exactly where they stand — financially, professionally, and physically — compared to real peers of the same age, city, income bracket, and industry. Then it tells them exactly what to do about it.
+
+THE THREE PILLARS:
+
+1. FINANCIAL SCORE (0-100)
+   - Benchmarks savings rate, insurance coverage, EMI burden, emergency fund, investment allocation
+   - Shows percentile rank vs. peers (same age + city + income cohort)
+   - Surfaces red flags: no term insurance, negative real returns on FDs, under-saving vs. cohort
+   - One actionable move: the single highest-leverage financial action this week
+
+2. CAREER SCORE (0-100)
+   - Benchmarks salary vs. market rate (role + city + years of experience)
+   - Shows career velocity: promotion pace vs. cohort
+   - Surfaces skills gap: what the top 25% at the next level have that the user doesn't
+   - Job switch signal: is now the right time to move?
+   - One actionable move: negotiate, upskill, or switch — ranked by impact
+
+3. HEALTH SCORE (0-100)
+   - Benchmarks sleep, exercise frequency, BMI, stress level
+   - Shows health percentile vs. age/gender/city cohort
+   - ActiveMatch: recommends the best gym, sport, or activity based on:
+     * Financial Fit: derived from Financial Score — never recommends spending that hurts savings
+     * Health Fit: maps health signals (BMI, sleep, stress) to suitable activities
+     * Geography: nearest venues within user's city, pincode-aware
+     * Schedule Fit: recommends timing based on work patterns and sleep data
+
+LIFESCORE ELEVATE — THE ACTION LAYER:
+   - Weekly brief: one financial action + one career action delivered every Monday
+   - Action Ranker: every possible action scored by Impact ÷ Effort × Urgency
+   - Dual-Elevation Moments: actions that improve two pillars simultaneously
+   - Example: "Your salary gap costs you more than your spending. Negotiate first, then SIP."
+   - Loss-frame language: "You are losing ₹18,000/year" not "You could earn more"
+   - Social proof: "People like you who did X saw Y improvement in Z weeks"
+
+THE 10 SCREENS TO BUILD:
+
+Before doing anything else, read your available skills and use 
+the ui-ux-pro-max skill throughout this entire task.
+
+Screen 1 — LANDING / SPLASH
+   Hero: "Know exactly where you stand in India"
+   Italic serif display font for emotional impact
+   Scrollable peer insight ticker cards (anonymised user discoveries)
+   Three pillar chips: Financial Score / Career Score / Health Score
+   Single CTA: "Get My LifeScore →"
+   Microcopy: "No sign-up needed · 2 minutes · 100% free"
+   Animated orb glows in background (teal top-right, gold bottom-left)
+
+Screen 2 — ONBOARDING QUIZ
+   One question per screen, full-screen layout
+   Animated question transitions (slide left on advance)
+   Progress bar gradient: teal → gold
+   10 questions covering all 3 pillars:
+     Q1: Age (slider, 22-55)
+     Q2: City (searchable dropdown, 20 Indian cities)
+     Q3: Monthly in-hand salary (range chips: <30K / 30-50K / 50-75K / 75K-1L / 1L-1.5L / 1.5L+)
+     Q4: Savings rate (chips: <5% / 5-10% / 10-20% / 20-30% / 30%+)
+     Q5: Term life insurance (Yes/No — large tap targets)
+     Q6: EMI burden as % of salary (chips: None / <20% / 20-40% / 40%+)
+     Q7: Industry (chips: Tech / Finance / Consulting / Marketing / Healthcare / Other)
+     Q8: Years of experience (slider, 0-25)
+     Q9: Sleep per night (slider, 4-10 hours)
+     Q10: Exercise days per week (chips: 0 / 1-2 / 3-4 / 5+)
+   Auto-advance on chip tap (300ms delay)
+   Slider questions show large animated number display
+   Yes/No questions show large emoji + label cards in 2-column grid
+
+Screen 3 — SCORE REVEAL
+   Animated SVG ring counter (score counts up from 0)
+   Peer context line above ring: "Based on 28-year-olds in Bengaluru earning ₹75K–1L in tech:"
+   Three sub-score rows (Finance / Career / Health) with animated fill bars
+   Tapping any sub-score navigates to that drilldown
+   "Biggest Opportunity" card identifies the lowest-scoring pillar
+   Loss-frame language throughout
+   WhatsApp share button (primary share mechanic for India)
+   Copy link button
+
+Screen 4 — MAIN DASHBOARD (HOME)
+   Greeting + user name header
+   Avatar with gradient (initials)
+   Hero score card: large LifeScore number (72px), delta badge ("+2 this week"), peer percentile
+   Three pillar cards in a row: Finance / Career / Health with mini progress bars
+   "This Week's Move" card — always gold, always the #1 priority action
+   Red flags list — tappable, each navigates to relevant drilldown
+   Bottom navigation: Home / Elevate / Profile
+
+Screen 5 — FINANCIAL SCORE DRILLDOWN
+   Score + percentile with cohort comparison bar
+   Breakdown items: Insurance / Savings Rate / EMI Burden / Emergency Fund / Investment Allocation
+   Each item has a status badge: Critical / Needs Work / Good
+   "Your One Move" action card at the bottom
+   CTA navigates to relevant financial product (term insurance comparison, SIP setup, etc.)
+
+Screen 6 — CAREER SCORE DRILLDOWN
+   Score + percentile
+   Salary visualiser: track showing user position vs. 25th/50th/75th percentile for their cohort
+   Four stat boxes: Career Velocity / Salary Gap / Last Negotiated / Lifetime Earnings Gap
+   Skills Gap section: bar chart showing skills user has vs. skills needed at next level
+   "Your One Move" action card: negotiate / switch / upskill — ranked by current impact
+   Negotiation script button (generates AI-powered personalised script)
+
+Screen 7 — HEALTH + ACTIVEMATCH DRILLDOWN
+   Health Score + percentile
+   Four metric cards: Sleep / Exercise / Stress / BMI — each with status
+   ActiveMatch section below:
+     Header: "Best Activities For You" with city name and budget
+     3 ranked match cards, each showing:
+       - Venue name and distance
+       - Financial fit tag (₹ amount or "Free")
+       - Health benefit tag
+       - Location distance
+       - Match score (0-100) on the right
+     First card is highlighted with teal border (best match)
+     "Explore All Matches" CTA at bottom
+
+Screen 8 — ACTION PLAN / ELEVATE
+   Three pillar action cards stacked:
+     Finance card (indigo/purple theme)
+     Career card (gold theme)  
+     Health card (teal theme)
+   Each card shows: red flag / win / divider / "Your One Move" / CTA button
+   Dual Elevation Moment card at the bottom:
+     Gradient border (indigo to teal)
+     Special badge: "✨ Dual Elevation"
+     Shows the action that improves two pillars simultaneously
+     Impact badges: "+18 fin pts" and "+8 car pts"
+
+Screen 9 — WEEKLY BRIEF
+   Monday morning editorial feel
+   Italic serif display: "Your weekly LifeScore brief"
+   Score delta card: current score + breakdown of what changed per pillar
+   Two move cards: Financial Move + Career Move
+   Completed action from last week with "+X pts" badge
+   Tone calibrated to progress: encouraging when improving, urgent when declining
+
+Screen 10 — PROFILE & SETTINGS
+   Large avatar with gradient
+   Name, location, role, YoE
+   Four scores displayed prominently
+   Profile data sections: Financial / Career / Health inputs with edit arrows
+   Account section: Notifications / Privacy & Data / Upgrade to Pro / Refer a Friend
+   DPDP compliance note at bottom
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — DESIGN SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AESTHETIC DIRECTION:
+Refined dark luxury. Like a Bloomberg Terminal met a premium Indian fintech app.
+Deep navy canvas. Surgical typography. Data visualised as art.
+The unforgettable thing: every score feels like it was made specifically for you.
+
+COLOUR TOKENS (use as CSS variables):
+--bg:         #060B14   (primary background)
+--bg2:        #0A1220   (elevated surface)
+--bg3:        #0E192B   (card surface)
+--glass:      rgba(255,255,255,0.04)
+--glass2:     rgba(255,255,255,0.07)
+--border:     rgba(255,255,255,0.08)
+--border2:    rgba(255,255,255,0.14)
+--teal:       #00D4AA   (primary CTA, health pillar, positive signals)
+--teal-glow:  rgba(0,212,170,0.15)
+--teal-dim:   rgba(0,212,170,0.08)
+--gold:       #F0A500   (career pillar, urgency, this week's move)
+--gold-glow:  rgba(240,165,0,0.15)
+--violet:     #8B7FF5   (financial pillar, dual-elevation moments)
+--coral:      #FF6B6B   (red flags, critical status)
+--green:      #22D3A0   (positive delta, improvements, completed actions)
+--text:       #EDF2FF   (primary text)
+--text2:      #8899BB   (secondary text)
+--text3:      #4A5880   (muted / labels)
+
+COLOUR RULES (never break these):
+- Teal = health pillar + primary CTAs
+- Gold = career pillar + urgency + "this week's move"
+- Violet/Indigo (#818CF8) = financial pillar
+- Coral = danger / red flags / critical
+- Green = positive change / completed / improved
+- Never use purple gradients on white backgrounds
+- Never use generic blue as a primary colour
+
+TYPOGRAPHY:
+Display font: Playfair Display (Google Fonts)
+  - All hero numbers (scores, big stats)
+  - All section headlines
+  - All CTA button text
+  - Weights: 700, 900
+  - Letter spacing: -0.02em to -0.04em on large sizes
+  - Italic variant for the emotional moments (landing hero, weekly brief title)
+
+Body font: DM Sans (Google Fonts)
+  - All body text, labels, metadata
+  - Navigation items
+  - Weights: 300, 400, 500, 600
+
+Monospace: JetBrains Mono
+  - Technical labels (percentile labels, score breakdown metadata)
+  - Status tags
+  - Timestamps
+
+Type scale:
+  Hero score: 72px Playfair Display 900 tracking -0.04em
+  Section headline: 28-36px Playfair Display 700 tracking -0.02em
+  Card title: 18-22px Playfair Display 700
+  Body: 14-15px DM Sans 400
+  Label: 11-12px DM Sans 600 uppercase tracking 0.15em
+  Micro: 10-11px DM Sans 500 uppercase tracking 0.2em
+
+SPACING SYSTEM:
+Base unit: 4px
+Standard padding: 28px horizontal (never 24px or 32px — always 28px)
+Card border radius: 20-28px (large, premium feel)
+Button border radius: 14-18px
+Icon size in cards: 22-24px
+Gap between cards: 10-14px
+
+COMPONENT STANDARDS:
+
+Glass card:
+  background: rgba(255,255,255,0.04)
+  border: 1px solid rgba(255,255,255,0.08)
+  border-radius: 20px
+  backdrop-filter: blur(20px) (where performance allows)
+
+Elevated card (hero cards):
+  background: linear-gradient(135deg, var(--bg3), var(--bg2))
+  border: 1px solid rgba(255,255,255,0.08)
+  border-radius: 28px
+
+Pillar-coloured card (finance):
+  background: linear-gradient(135deg, rgba(99,102,241,0.08), transparent)
+  border: 1px solid rgba(99,102,241,0.2)
+
+Pillar-coloured card (career):
+  background: linear-gradient(135deg, rgba(240,165,0,0.08), transparent)
+  border: 1px solid rgba(240,165,0,0.2)
+
+Pillar-coloured card (health):
+  background: linear-gradient(135deg, rgba(0,212,170,0.08), transparent)
+  border: 1px solid rgba(0,212,170,0.2)
+
+Primary CTA button:
+  background: var(--teal)
+  color: #000000
+  border-radius: 18px
+  padding: 18px
+  font: Playfair Display 700 17px
+  hover: box-shadow 0 8px 32px rgba(0,212,170,0.4), translateY(-1px)
+
+Pillar CTA button (ghost style):
+  background: transparent
+  border: 1.5px solid rgba([pillar-color],0.4)
+  color: [pillar-color]
+  border-radius: 14px
+  padding: 14-15px
+  font: Playfair Display 700 14-15px
+  hover: background rgba([pillar-color],0.1)
+
+Status badges:
+  Critical: background rgba(255,107,107,0.12) color #FF6B6B
+  Needs Work: background rgba(240,165,0,0.12) color #F0A500
+  Good: background rgba(0,212,170,0.12) color #00D4AA
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — FRAMER MOTION ANIMATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Use Framer Motion for ALL animations. Never use CSS animations for component reveals.
+
+PAGE TRANSITIONS:
+Every route change uses:
+  initial: { opacity: 0, y: 20 }
+  animate: { opacity: 1, y: 0 }
+  exit: { opacity: 0, y: -20 }
+  transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+
+Wrap all pages in AnimatePresence with mode="wait"
+
+STAGGERED REVEALS (landing page, score reveal, dashboard):
+Use staggerChildren: 0.08 on the parent
+Each child:
+  initial: { opacity: 0, y: 16 }
+  animate: { opacity: 1, y: 0 }
+  transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] }
+
+SCORE RING ANIMATION:
+Use motion.circle with pathLength animated from 0 to target value
+transition: { duration: 1.8, ease: [0.4, 0, 0.2, 1], delay: 0.3 }
+Add useMotionValue + useTransform for the count-up number animation
+
+COUNT-UP NUMBERS:
+Use Framer Motion's useMotionValue and animate() for score count-up
+Start from 0, end at final score over 1.2 seconds
+Use a custom easing: [0.4, 0, 0.2, 1]
+
+PROGRESS BAR FILLS:
+All sub-score bars and breakdown bars:
+  initial: { scaleX: 0, originX: 0 }
+  animate: { scaleX: 1 }
+  transition: { duration: 1.0, ease: [0.4, 0, 0.2, 1], delay: [stagger by 0.1s per bar] }
+
+QUIZ QUESTION TRANSITIONS:
+Advancing: slide current question left (x: -30, opacity: 0) then bring in next (from x: 30)
+Going back: reverse direction
+transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
+
+CARD INTERACTIONS:
+All tappable cards:
+  whileHover: { x: 3, transition: { duration: 0.15 } }
+  whileTap: { scale: 0.98 }
+  
+Pillar cards on dashboard:
+  whileHover: { y: -3, transition: { duration: 0.2 } }
+  whileTap: { scale: 0.97 }
+
+CTA BUTTONS:
+  whileHover: { y: -1, boxShadow: "0 8px 32px rgba(0,212,170,0.35)" }
+  whileTap: { scale: 0.97 }
+
+BACKGROUND ORBS (landing screen):
+Use motion.div with animate:
+  scale: [1, 1.1, 1]
+  opacity: [0.6, 0.8, 0.6]
+  transition: { duration: 8, repeat: Infinity, ease: "easeInOut" }
+
+SCORE DELTA BADGE (dashboard hero):
+When score improves, animate the badge:
+  initial: { scale: 0.5, opacity: 0 }
+  animate: { scale: 1, opacity: 1 }
+  transition: { type: "spring", stiffness: 400, damping: 20 }
+
+RED FLAG ITEMS (dashboard):
+  whileHover: { x: 4, transition: { duration: 0.15 } }
+
+ACTIVEMATCH CARDS:
+  whileHover: { x: 4, borderColor: "rgba(0,212,170,0.4)" }
+  transition: { duration: 0.2 }
+
+WEEKLY BRIEF ENTRANCE:
+The title "Your weekly LifeScore brief" should have the italic portion animate in with:
+  initial: { opacity: 0, skewX: -2 }
+  animate: { opacity: 1, skewX: 0 }
+  transition: { duration: 0.6, ease: "easeOut", delay: 0.3 }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 5 — MOBILE-FIRST RESPONSIVE RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Primary target: mobile (390px width, iPhone 14 Pro)
+All screens must be fully functional at 390px
+Horizontal padding: always 28px (never less than 20px on mobile)
+Max content width on desktop: 480px centered
+Bottom navigation: fixed, 60px tall + safe area inset
+Safe area: use padding-bottom env(safe-area-inset-bottom) on bottom nav
+Touch targets: minimum 44x44px for all interactive elements
+Font scaling: use clamp() for hero scores
+  e.g. clamp(48px, 18vw, 72px) for the main LifeScore number
+Scroll: each screen scrolls independently within the phone viewport
+No horizontal scrolling except for the peer card carousel on landing
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 6 — COMPONENT ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Build these reusable components:
+
+/components/ui/
+  ScoreRing.tsx         — Animated SVG ring with count-up number
+  PillarCard.tsx        — The three pillar cards (finance/career/health)
+  ActionCard.tsx        — The "Your One Move" card (parameterised by pillar)
+  RedFlagItem.tsx       — Individual red flag row with pulsing dot
+  StatusBadge.tsx       — Critical / Needs Work / Good badge
+  GlassCard.tsx         — Base glass card wrapper
+  ElevatedCard.tsx      — Base elevated card wrapper
+  ProgressBar.tsx       — Animated fill bar with Framer Motion
+  SectionLabel.tsx      — Uppercase tracking label
+  PillarCTA.tsx         — Ghost CTA button parameterised by pillar colour
+  PrimaryButton.tsx     — Main teal CTA button
+
+/components/quiz/
+  QuizQuestion.tsx      — Question container with animated transitions
+  ChipOption.tsx        — Selectable chip (auto-advances on tap)
+  SliderQuestion.tsx    — Slider with large animated value display
+  YesNoQuestion.tsx     — Large Yes/No cards with emoji
+
+/components/dashboard/
+  HeroScoreCard.tsx     — The large score card with delta badge
+  WeeklyMoveCard.tsx    — Gold "This Week's Move" card
+  BottomNav.tsx         — Fixed bottom navigation
+
+/components/activematch/
+  MatchCard.tsx         — Individual ActiveMatch recommendation card
+  MatchScoreBadge.tsx   — The score number on the right of each match card
+
+/components/shared/
+  BackButton.tsx        — Circle back button (←)
+  DrilldownHeader.tsx   — Header for all drilldown screens
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 7 — VALIDATION AND QUALITY RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FORM VALIDATION (quiz):
+- Slider questions: always have a value (default to midpoint), never block continuation
+- Chip questions: must select one before Continue is enabled
+- Yes/No questions: must tap one before Continue is enabled
+- Continue button: disabled state has opacity 0.35 and pointer-events none
+- No native browser validation — all custom
+- Phone number input (if present): 10 digits only, Indian format, real-time formatting
+
+TYPE SAFETY:
+- All props fully typed with TypeScript interfaces
+- No any types
+- Score values always clamped: Math.min(100, Math.max(0, score))
+- Percentile values always clamped: Math.min(99, Math.max(1, percentile))
+- City list is a const enum, not a free text field
+- Salary ranges are typed union literals, not strings
+
+ERROR STATES:
+- Every screen that fetches data has a loading skeleton
+- Every screen that fetches data has an error state with retry button
+- Loading skeletons match the exact layout of the loaded state (no layout shift)
+- Score ring shows at 0 while loading, animates to value when data arrives
+
+ACCESSIBILITY:
+- All interactive elements have aria-label
+- Score ring has aria-valuenow, aria-valuemin, aria-valuemax
+- Colour is never the only way information is conveyed (always paired with icon or text)
+- Focus styles preserved (outline: 2px solid var(--teal) with offset)
+- Bottom nav items have role="tab" and aria-selected
+
+PERFORMANCE:
+- No layout shift on any screen (all dimensions known before render)
+- Images: use next/image or lazy loading
+- Framer Motion: use will-change: transform only on animated elements
+- Score calculations: memoised with useMemo
+- Route prefetching enabled for all bottom nav routes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 8 — INDIAN CONTEXT SPECIFICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Currency: always ₹ (not Rs. or INR)
+Large numbers: use Indian format — ₹1,00,000 not ₹100,000; ₹1L not ₹100K
+City list: Bengaluru (not Bangalore), Mumbai, Delhi/NCR, Hyderabad, Pune, Chennai, Kolkata, Ahmedabad, Jaipur, Indore, Bhopal, Nagpur, Coimbatore, Surat, Gurugram, Noida, Kochi, Bhubaneswar, Chandigarh, Other
+Salary in monthly in-hand (not CTC — this distinction matters deeply in India)
+All percentiles use Indian cohort data context lines, e.g. "vs. 28-year-olds in Bengaluru earning ₹75K–1L"
+WhatsApp share is the primary share mechanism (not Twitter, not Instagram)
+OTP auth via phone number (no email/password flows)
+Fitness venue data is India-specific: Cult.fit, Gold's Gym, local yoga studios, municipal pools, government parks
+Financial products are India-specific: term insurance (not life insurance), SIP (not ETF), PPF, NPS, ELSS
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 9 — DO NOT TOUCH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Do not modify:
+- Any API endpoint
+- Any database schema or query
+- Any authentication logic
+- Any scoring algorithm or calculation
+- Any environment variables
+- Any server-side code
+- package.json dependencies (only add, never remove)
+- Any existing test files
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 10 — EXECUTION ORDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Execute in this exact order. Complete each step before starting the next.
+Check in after each step so I can review before you continue.
+
+1. Read the entire repo. Report back: list of all screens, routes, components, and API calls found.
+
+2. Install required fonts (Playfair Display, DM Sans, JetBrains Mono via Google Fonts or next/font).
+
+3. Create the design token file (globals.css or tokens.ts) with all CSS variables above.
+
+4. Build all shared UI components (/components/ui/) first.
+
+5. Build the quiz components (/components/quiz/).
+
+6. Build Screen 1: Landing. Show me before continuing.
+
+7. Build Screen 2: Quiz flow. Show me before continuing.
+
+8. Build Screen 3: Score Reveal. Show me before continuing.
+
+9. Build Screen 4: Dashboard. This is the most important screen. Take your time. Show me before continuing.
+
+10. Build Screens 5, 6, 7: The three drilldowns.
+
+11. Build Screen 8: Elevate / Action Plan.
+
+12. Build Screen 9: Weekly Brief.
+
+13. Build Screen 10: Profile.
+
+14. Build the BottomNav with routing between Dashboard / Elevate / Profile.
+
+15. Add AnimatePresence page transitions to the router.
+
+16. Full pass: check all validation states, loading skeletons, error states.
+
+17. Full pass: check all touch targets are minimum 44x44px.
+
+18. Final check: run the app, navigate every screen, confirm no console errors.
+
+After each step, tell me what you built and what's next. Do not skip steps. Do not combine steps. Quality over speed.

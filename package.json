@@ -7,7 +7,12 @@
     "dev:webpack": "next dev",
     "build": "next build",
     "start": "next start -p ${PORT:-3000}",
-    "lint": "next lint"
+    "lint": "next lint",
+    "data:fetch-baselines": "node scripts/data/fetch_open_baselines.mjs",
+    "data:validate-baselines": "node scripts/data/validate_baselines.mjs",
+    "data:ingestion-cycle": "node scripts/data/run_ingestion_cycle.mjs",
+    "data:build-percentiles": "node scripts/data/build_benchmark_percentiles.mjs",
+    "data:build-activities": "node scripts/data/build_activity_recommendations.mjs"
   },
   "dependencies": {
     "next": "^15.3.1",

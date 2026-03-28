@@ -1,33 +1,56 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useQuiz } from "./quiz-context";
 import { QuestionChips } from "./question-chips";
 import { QuestionSlider } from "./question-slider";
 import { QuestionDropdown } from "./question-dropdown";
+import { QuizQuestion } from "./quiz-question";
 import type { QuizAnswers } from "@/types/quiz";
 import { ChevronLeft } from "lucide-react";
+
+const slideVariants = {
+  enter: (dir: number) => ({
+    x: dir > 0 ? 36 : -36,
+    opacity: 0,
+  }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({
+    x: dir > 0 ? -36 : 36,
+    opacity: 0,
+  }),
+};
 
 export function QuizScreen() {
   const { currentQuestion, answers, config, goBack, answerQuestion, isComplete } = useQuiz();
   const [animating, setAnimating] = useState(false);
+  const [slideDir, setSlideDir] = useState(1);
+  const prevQ = useRef(currentQuestion);
 
   const question = config.questions[currentQuestion];
   const currentValue = question ? answers[question.key] : undefined;
   const remainingQuestions = config.total_questions - (currentQuestion + 1);
 
+  const handleBack = useCallback(() => {
+    setSlideDir(-1);
+    goBack();
+  }, [goBack]);
+
   const handleAnswer = useCallback(
     (value: string | number) => {
-      if (animating) return;
+      if (animating || !question) return;
       const key = question.key as keyof QuizAnswers;
 
       if (question.type === "chips" || question.type === "dropdown") {
         setAnimating(true);
+        setSlideDir(1);
         setTimeout(() => {
           answerQuestion(key, value);
           setAnimating(false);
-        }, 400);
+        }, 280);
       } else {
+        setSlideDir(1);
         answerQuestion(key, value);
       }
     },
@@ -35,86 +58,92 @@ export function QuizScreen() {
   );
 
   useEffect(() => {
+    if (currentQuestion > prevQ.current) setSlideDir(1);
+    if (currentQuestion < prevQ.current) setSlideDir(-1);
+    prevQ.current = currentQuestion;
     setAnimating(false);
   }, [currentQuestion]);
 
   if (isComplete || !question) return null;
 
+  const progressPct = ((currentQuestion + 1) / config.total_questions) * 100;
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Progress bar */}
-      <div className="w-full h-1.5 bg-white/60">
-        <div
-          className="h-full bg-gradient-to-r from-vyve-indigo to-vyve-amber transition-all duration-500 ease-out"
-          style={{ width: `${((currentQuestion + 1) / config.total_questions) * 100}%` }}
+    <div className="flex min-h-screen flex-col bg-[var(--bg)]">
+      <div className="h-1.5 w-full overflow-hidden bg-[var(--bg3)]">
+        <motion.div
+          className="h-full bg-gradient-to-r from-[var(--teal)] to-[var(--gold)]"
+          initial={false}
+          animate={{ width: `${progressPct}%` }}
+          transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
         />
       </div>
 
-      {/* Header */}
-      <div className="flex items-center px-4 py-3 backdrop-blur bg-white/55 border-b border-gray-100">
-        {currentQuestion > 0 && (
+      <div className="flex items-center border-b border-[var(--border)] bg-[var(--bg2)]/90 px-[var(--pad-x)] py-3 backdrop-blur-md">
+        {currentQuestion > 0 ? (
           <button
-            onClick={goBack}
+            type="button"
+            onClick={handleBack}
             aria-label="Go to previous question"
-            className="inline-flex items-center gap-1 p-2 -ml-2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-1 rounded-xl px-2 text-[var(--text2)] transition-colors hover:text-[var(--text)]"
           >
-            <ChevronLeft className="w-5 h-5" />
-            <span className="text-sm font-medium">Back</span>
+            <ChevronLeft className="h-5 w-5" aria-hidden />
+            <span className="text-sm font-semibold">Back</span>
           </button>
+        ) : (
+          <div className="min-h-[44px] min-w-[44px]" aria-hidden />
         )}
         <div className="ml-auto text-right">
-          <span className="block text-sm text-gray-500 font-medium">
+          <span className="block font-mono-label text-[12px] font-semibold text-[var(--text2)]">
             Question {currentQuestion + 1} of {config.total_questions}
           </span>
-          <span className="block text-xs text-gray-400">
+          <span className="block text-[11px] text-[var(--text3)]">
             {remainingQuestions > 0 ? `${remainingQuestions} left` : "Almost done"}
           </span>
         </div>
       </div>
 
-      {/* Question */}
-      <div
-        className={`flex-1 flex flex-col items-center justify-center px-4 pb-12
-          transition-all duration-300 ${animating ? "opacity-0 translate-x-4" : "opacity-100 translate-x-0"}`}
-      >
-        <div className="w-full max-w-2xl rounded-3xl border border-gray-200 bg-white/85 backdrop-blur p-6 md:p-8 shadow-xl shadow-vyve-indigo/5">
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-center text-gray-900 mb-2">
-            {question.question}
-          </h2>
-
-          {question.tooltip && (
-            <p className="text-sm text-vyve-amber font-medium mb-6 text-center">
-              {question.tooltip}
-            </p>
-          )}
-          <p className="text-xs text-gray-400 text-center mt-1">
-            No right or wrong answers. This is your private snapshot.
-          </p>
-
-          <div className="w-full max-w-lg mx-auto mt-8">
-          {question.type === "chips" && (
-            <QuestionChips
-              question={question}
-              value={currentValue as string | undefined}
-              onSelect={(v) => handleAnswer(v)}
-            />
-          )}
-          {question.type === "slider" && (
-            <QuestionSlider
-              question={question}
-              value={currentValue as number | undefined}
-              onSelect={(v) => handleAnswer(v)}
-            />
-          )}
-          {question.type === "dropdown" && (
-            <QuestionDropdown
-              question={question}
-              value={currentValue as string | undefined}
-              onSelect={(v) => handleAnswer(v)}
-            />
-          )}
-          </div>
-        </div>
+      <div className="relative flex flex-1 flex-col overflow-hidden px-[var(--pad-x)] pb-12 pt-6">
+        <AnimatePresence mode="wait" custom={slideDir}>
+          <motion.div
+            key={question.id}
+            custom={slideDir}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] }}
+            className="mx-auto w-full max-w-[480px] flex-1"
+          >
+            <div
+              className={`glass-card rounded-[var(--radius-card)] p-6 md:p-8 ${animating ? "pointer-events-none opacity-40" : ""}`}
+            >
+              <QuizQuestion title={question.question} tooltip={question.tooltip}>
+                {question.type === "chips" && (
+                  <QuestionChips
+                    question={question}
+                    value={currentValue as string | undefined}
+                    onSelect={(v) => handleAnswer(v)}
+                  />
+                )}
+                {question.type === "slider" && (
+                  <QuestionSlider
+                    question={question}
+                    value={currentValue as number | undefined}
+                    onSelect={(v) => handleAnswer(v)}
+                  />
+                )}
+                {question.type === "dropdown" && (
+                  <QuestionDropdown
+                    question={question}
+                    value={currentValue as string | undefined}
+                    onSelect={(v) => handleAnswer(v)}
+                  />
+                )}
+              </QuizQuestion>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
